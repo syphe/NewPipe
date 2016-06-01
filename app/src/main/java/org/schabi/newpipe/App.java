@@ -8,6 +8,8 @@ import android.preference.PreferenceManager;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
+import org.schabi.newpipe.cast.CastListener;
+
 import info.guardianproject.netcipher.NetCipher;
 import info.guardianproject.netcipher.proxy.OrbotHelper;
 
@@ -52,6 +54,8 @@ public class App extends Application {
         // DO NOT REMOVE THIS FUNCTION!!!
         // Otherwise downloadPathPreference has invalid value.
         SettingsActivity.initSettings(this);
+
+        CastListener.getInstance().init(this);
     }
 
     /**

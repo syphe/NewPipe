@@ -55,7 +55,7 @@ class ActionBarHandler {
     private OnActionListener onDownloadListener = null;
     private OnActionListener onPlayWithKodiListener = null;
     private OnActionListener onPlayAudioListener = null;
-
+    private OnActionListener onCastListener = null;
 
     // Triggered when a stream related action is triggered.
     public interface OnActionListener {
@@ -186,6 +186,11 @@ class ActionBarHandler {
                 activity.startActivity(intent);
                 return true;
             }
+            case R.id.menu_item_cast:
+                if (onCastListener != null) {
+                    onCastListener.onActionSelected(selectedVideoStream);
+                }
+                return true;
             default:
                 Log.e(TAG, "Menu Item not known");
         }
@@ -214,6 +219,10 @@ class ActionBarHandler {
 
     public void setOnPlayAudioListener(OnActionListener listener) {
         onPlayAudioListener = listener;
+    }
+
+    public void setOnCastListener(OnActionListener listener) {
+        onCastListener = listener;
     }
 
     public void showAudioAction(boolean visible) {

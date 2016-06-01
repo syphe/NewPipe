@@ -655,6 +655,14 @@ public class VideoItemDetailFragment extends Fragment {
                 }
             });
         }
+
+        actionBarHandler.setOnCastListener(new ActionBarHandler.OnActionListener() {
+            @Override
+            public void onActionSelected(int selectedStreamId) {
+                Toast toast = Toast.makeText(getContext(), "Casting", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        });
     }
 
     private int getPreferredAudioStreamId(final StreamInfo info) {
