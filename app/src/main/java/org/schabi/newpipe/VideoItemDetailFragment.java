@@ -26,6 +26,7 @@ import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -38,7 +39,10 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
+import com.connectsdk.device.ConnectableDevice;
+import com.connectsdk.device.DevicePicker;
 import com.google.android.exoplayer.util.Util;
+import com.google.android.gms.cast.Cast;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -48,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 
+import org.schabi.newpipe.cast.Caster;
 import org.schabi.newpipe.download.DownloadDialog;
 import org.schabi.newpipe.extractor.AudioStream;
 import org.schabi.newpipe.extractor.MediaFormat;
@@ -659,8 +664,22 @@ public class VideoItemDetailFragment extends Fragment {
         actionBarHandler.setOnCastListener(new ActionBarHandler.OnActionListener() {
             @Override
             public void onActionSelected(int selectedStreamId) {
-                Toast toast = Toast.makeText(getContext(), "Casting", Toast.LENGTH_SHORT);
-                toast.show();
+                final Caster caster = Caster.getInstance();
+                if (caster.getCurrentDevice() == null) {
+                    DevicePicker devicePicker = new DevicePicker(getActivity());
+                    android.app.AlertDialog dialog = devicePicker.getPickerDialog("Cast Video", new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            ConnectableDevice device = (ConnectableDevice)parent.getItemAtPosition(position);
+                            caster.setCurrentDevice(device);
+                            playVideo(info);
+                        }
+                    });
+                    dialog.show();
+                } else {
+                    Toast toast = Toast.makeText(getContext(), "TODO: Disconnect dialog", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
             }
         });
     }
@@ -864,6 +883,16 @@ public class VideoItemDetailFragment extends Fragment {
         // ----------- THE MAGIC MOMENT ---------------
         VideoStream selectedVideoStream =
                 info.video_streams.get(actionBarHandler.getSelectedVideoStream());
+
+        Caster caster = Caster.getInstance();
+        if (caster.getCurrentDevice() != null) {
+            if (caster.getIsPlaying()) {
+                caster.stopVideo();
+            } else {
+                caster.playVideo(this, info, selectedVideoStream);
+            }
+            return;
+        }
 
         if (PreferenceManager.getDefaultSharedPreferences(activity)
                 .getBoolean(activity.getString(R.string.use_external_video_player_key), false)) {
